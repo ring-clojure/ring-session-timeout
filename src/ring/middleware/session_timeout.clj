@@ -14,6 +14,7 @@
 
   :timeout          - the idle timeout in seconds (default 600 seconds)
   :timeout-response - the response to send if an idle timeout occurs"
+  {:arglists '([handler options])}
   [handler {:keys [timeout timeout-response] :or {timeout 600}}]
   {:pre [(integer? timeout) (map? timeout-response)]}
   (fn [request]
@@ -39,6 +40,7 @@
 
   :timeout          - the absolute timeout in seconds
   :timeout-response - the response to send if an idle timeout occurs"
+  {:arglists '([handler options])}
   [handler {:keys [timeout timeout-response]}]
   {:pre [(integer? timeout) (map? timeout-response)]}
   (fn [request]
