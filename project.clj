@@ -1,6 +1,6 @@
 (defproject ring/ring-session-timeout "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+  :description "Ring middleware for session timeouts"
+  :url "https://github.com/ring-clojure/ring-session-timeout"
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.3.0"]]
