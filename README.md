@@ -8,7 +8,7 @@ Ring middleware that provides idle and absolute timeouts for sessions.
 
 Add the following dependency to your `project.clj`:
 
-    [ring/ring-session-timeout "0.1.0-SNAPSHOT"]
+    [ring/ring-session-timeout "0.1.0"]
 
 ## Documentation
 
