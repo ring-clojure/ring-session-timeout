@@ -6,4 +6,8 @@
   :dependencies [[org.clojure/clojure "1.3.0"]]
   :plugins [[codox "0.8.7"]]
   :codox {:project {:name "Ring-Session-Timeout"}}
-  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]}})
+  :profiles
+  {:dev {:dependencies [[ring-mock "0.1.5"]]}
+   :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
+   :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
+   :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}})
