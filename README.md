@@ -1,5 +1,7 @@
 # Ring-Session-Timeout
 
+[![Build Status](https://secure.travis-ci.org/ring-clojure/ring-session-timeout.png)](http://travis-ci.org/ring-clojure/ring-session-timeout)
+
 Ring middleware that provides idle and absolute timeouts for sessions.
 
 ## Installation
