@@ -10,9 +10,22 @@ Add the following dependency to your `project.clj`:
 
     [ring/ring-session-timeout "0.1.0"]
 
+
 ## Documentation
 
 * [API Docs](http://ring-clojure.github.io/ring-session-timeout/ring.middleware.session-timeout.html)
+
+* Basic usage:
+```clojure
+(def timeout-response
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body "timeout"})
+
+(-> app
+   (wrap-idle-session-timeout {:timeout 600 :timeout-response timeout-response})
+   (wrap-session {:cookie-name "foo"}))
+```
 
 ## License
 
