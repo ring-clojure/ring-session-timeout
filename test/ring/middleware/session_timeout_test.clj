@@ -77,3 +77,23 @@
   (testing "nil response"
     (let [handler (wrap-absolute-session-timeout (constantly nil) timeout-options)]
       (is (nil? (handler (mock/request :get "/")))))))
+
+(defn timeout-handler
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body (str "timeout on " (:uri request))})
+
+(def idle-handler-with-timeout-handler
+  (-> (constantly ok-response)
+      (wrap-idle-session-timeout
+       {:timeout 600
+        :timeout-handler timeout-handler})))
+
+(deftest test-timeout-handler-fn
+  (testing "timed out with a timeout-handler specified"
+    (let [request  (-> (mock/request :get "/")
+                       (assoc :session {::timeout/idle-timeout 1400000600}))
+          response (with-time 1400000700 (idle-handler-with-timeout-handler request))]
+      (is (= (:body response) "timeout on /"))
+      (is (= (:session response :empty) nil)))))
