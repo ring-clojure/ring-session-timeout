@@ -14,11 +14,13 @@
    :headers {"Content-Type" "text/plain"}
    :body "timeout"})
 
+(def timeout-options
+  {:timeout 600
+   :timeout-response timeout-response})
+
 (def idle-handler
   (-> (constantly ok-response)
-      (wrap-idle-session-timeout
-       {:timeout 600
-        :timeout-response timeout-response})))
+      (wrap-idle-session-timeout timeout-options)))
 
 (defmacro with-time [time & body]
   `(with-redefs [timeout/current-time (constantly ~time)]
@@ -42,13 +44,15 @@
                        (assoc :session {::timeout/idle-timeout 1400000600}))
           response (with-time 1400000700 (idle-handler request))]
       (is (= (:body response) "timeout"))
-      (is (= (:session response :empty) nil)))))
+      (is (= (:session response :empty) nil))))
+
+  (testing "nil response"
+    (let [handler (wrap-idle-session-timeout (constantly nil) timeout-options)]
+      (is (nil? (handler (mock/request :get "/")))))))
 
 (def absolute-handler
   (-> (constantly ok-response)
-      (wrap-absolute-session-timeout
-       {:timeout 600
-        :timeout-response timeout-response})))
+      (wrap-absolute-session-timeout timeout-options)))
 
 (deftest test-absolute-timeout
   (testing "timeout added to session"
@@ -68,4 +72,8 @@
                        (assoc :session {::timeout/absolute-timeout 1400000600}))
           response (with-time 1400000700 (absolute-handler request))]
       (is (= (:body response) "timeout"))
-      (is (= (:session response :empty) nil)))))
+      (is (= (:session response :empty) nil))))
+
+  (testing "nil response"
+    (let [handler (wrap-absolute-session-timeout (constantly nil) timeout-options)]
+      (is (nil? (handler (mock/request :get "/")))))))

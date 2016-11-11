@@ -22,11 +22,11 @@
           end-time (::idle-timeout session)]
       (if (and end-time (< end-time (current-time)))
         (assoc timeout-response :session nil)
-        (let [response (handler request)
-              end-time (+ (current-time) timeout)
-              session  (-> (:session response session)
-                           (assoc ::idle-timeout end-time))]
-          (assoc response :session session))))))
+        (when-let [response (handler request)]
+          (let [end-time (+ (current-time) timeout)
+                session  (-> (:session response session)
+                             (assoc ::idle-timeout end-time))]
+            (assoc response :session session)))))))
 
 (defn wrap-absolute-session-timeout
   "Middleware that times out sessions after a specified number of seconds,
@@ -48,10 +48,10 @@
           end-time (::absolute-timeout session)]
       (if (and end-time (< end-time (current-time)))
         (assoc timeout-response :session nil)
-        (let [response (handler request)
-              session  (:session response session)]
-          (if (or (nil? session) (and end-time (not (contains? response :session))))
-            response
-            (let [end-time (or end-time (+ (current-time) timeout))
-                  session  (assoc session ::absolute-timeout end-time)]
-              (assoc response :session session))))))))
+        (when-let [response (handler request)]
+          (let [session (:session response session)]
+            (if (or (nil? session) (and end-time (not (contains? response :session))))
+              response
+              (let [end-time (or end-time (+ (current-time) timeout))
+                    session  (assoc session ::absolute-timeout end-time)]
+                (assoc response :session session)))))))))
