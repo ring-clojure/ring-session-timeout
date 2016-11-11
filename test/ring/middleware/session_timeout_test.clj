@@ -50,7 +50,7 @@
        {:timeout 600
         :timeout-response timeout-response})))
 
-(deftest test-idle-timeout
+(deftest test-absolute-timeout
   (testing "timeout added to session"
     (let [response (with-time 1400000000 (absolute-handler (mock/request :get "/")))]
       (is (= (:body response) "ok"))
