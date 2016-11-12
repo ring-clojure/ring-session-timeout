@@ -42,20 +42,27 @@
   limit on how long a compromised session can be exploited.
 
   If a session is timed out, the timeout-response option is returned. This is
-  usually a redirect to the login page.
+  usually a redirect to the login page. A timeout-handler may be provided which
+  should be a Ring handler function that takes the current request and returns
+  an appropriate response.
 
   The following options are accepted:
 
   :timeout          - the absolute timeout in seconds
-  :timeout-response - the response to send if an idle timeout occurs"
+  :timeout-response - the response to send if an idle timeout occurs
+  :timeout-handler  - a Ring handler function which takes the current request and
+                      returns a Ring response map if idle timeout occurs "
   {:arglists '([handler options])}
-  [handler {:keys [timeout timeout-response]}]
-  {:pre [(integer? timeout) (map? timeout-response)]}
+  [handler {:keys [timeout timeout-response timeout-handler]}]
+  {:pre [(integer? timeout)
+         (if (map? timeout-response)
+           (nil? timeout-handler)
+           (ifn? timeout-handler))]}
   (fn [request]
     (let [session  (:session request {})
           end-time (::absolute-timeout session)]
       (if (and end-time (< end-time (current-time)))
-        (assoc timeout-response :session nil)
+        (assoc (or timeout-response (timeout-handler request)) :session nil)
         (when-let [response (handler request)]
           (let [session (:session response session)]
             (if (or (nil? session) (and end-time (not (contains? response :session))))

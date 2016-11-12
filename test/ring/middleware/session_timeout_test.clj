@@ -80,6 +80,12 @@
   (-> (constantly ok-response)
       (timeout/wrap-absolute-session-timeout timeout-options)))
 
+(def absolute-handler-with-timeout-handler
+  (-> (constantly ok-response)
+      (timeout/wrap-absolute-session-timeout
+       {:timeout 600
+        :timeout-handler timeout-handler})))
+
 (deftest test-absolute-timeout
   (testing "timeout added to session"
     (let [response (with-time 1400000000 (absolute-handler (mock/request :get "/")))]
@@ -98,6 +104,13 @@
                        (assoc :session {::timeout/absolute-timeout 1400000600}))
           response (with-time 1400000700 (absolute-handler request))]
       (is (= (:body response) "timeout"))
+      (is (= (:session response :empty) nil))))
+
+  (testing "timed out with timeout handler"
+    (let [request  (-> (mock/request :get "/fooxyz")
+                       (assoc :session {::timeout/absolute-timeout 1400000600}))
+          response (with-time 1400000700 (absolute-handler-with-timeout-handler request))]
+      (is (= (:body response) "timeout on /fooxyz"))
       (is (= (:session response :empty) nil))))
 
   (testing "nil response"
