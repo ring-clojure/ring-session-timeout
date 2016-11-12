@@ -4,8 +4,13 @@
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.5.1"]]
-  :plugins [[codox "0.8.7"]]
-  :codox {:project {:name "Ring-Session-Timeout"}}
+  :plugins [[lein-codox "0.10.1"]]
+  :codox
+  {:project {:name "Ring-Session-Timeout"}
+   :html    {:namespace-list :nested}
+   :output-path "codox"
+   :source-uri
+   "https://github.com/ring-clojure/ring-session-timeout/blob/{version}/{filepath}#L{line}"}
   :aliases {"test-all" ["with-profile" "default:+1.6:+1.7:+1.8" "test"]}
   :profiles
   {:dev {:dependencies [[ring-mock "0.1.5"]]}
