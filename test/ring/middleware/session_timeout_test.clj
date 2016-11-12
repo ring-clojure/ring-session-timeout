@@ -1,7 +1,6 @@
 (ns ring.middleware.session-timeout-test
-  (:use clojure.test
-        ring.middleware.session-timeout)
-  (:require [ring.middleware.session-timeout :as timeout]
+  (:require [clojure.test :refer :all]
+            [ring.middleware.session-timeout :as timeout]
             [ring.mock.request :as mock]))
 
 (def ok-response
@@ -20,7 +19,7 @@
 
 (def idle-handler
   (-> (constantly ok-response)
-      (wrap-idle-session-timeout timeout-options)))
+      (timeout/wrap-idle-session-timeout timeout-options)))
 
 (defn timeout-handler [request]
   {:status 200
@@ -29,7 +28,7 @@
 
 (def idle-handler-with-timeout-handler
   (-> (constantly ok-response)
-      (wrap-idle-session-timeout
+      (timeout/wrap-idle-session-timeout
        {:timeout 600
         :timeout-handler timeout-handler})))
 
@@ -65,12 +64,12 @@
       (is (= (:session response :empty) nil))))
 
   (testing "nil response"
-    (let [handler (wrap-idle-session-timeout (constantly nil) timeout-options)]
+    (let [handler (timeout/wrap-idle-session-timeout (constantly nil) timeout-options)]
       (is (nil? (handler (mock/request :get "/")))))))
 
 (def absolute-handler
   (-> (constantly ok-response)
-      (wrap-absolute-session-timeout timeout-options)))
+      (timeout/wrap-absolute-session-timeout timeout-options)))
 
 (deftest test-absolute-timeout
   (testing "timeout added to session"
@@ -93,5 +92,5 @@
       (is (= (:session response :empty) nil))))
 
   (testing "nil response"
-    (let [handler (wrap-absolute-session-timeout (constantly nil) timeout-options)]
+    (let [handler (timeout/wrap-absolute-session-timeout (constantly nil) timeout-options)]
       (is (nil? (handler (mock/request :get "/")))))))
