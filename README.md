@@ -16,6 +16,6 @@ Add the following dependency to your `project.clj`:
 
 ## License
 
-Copyright © 2014 James Reeves
+Copyright © 2016 James Reeves
 
 Distributed under the MIT License, the same as Ring.
