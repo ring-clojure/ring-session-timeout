@@ -65,7 +65,16 @@
 
   (testing "nil response"
     (let [handler (timeout/wrap-idle-session-timeout (constantly nil) timeout-options)]
-      (is (nil? (handler (mock/request :get "/")))))))
+      (is (nil? (handler (mock/request :get "/"))))))
+
+  (testing "nil session"
+    (let [handler  (-> (constantly (assoc ok-response :session nil))
+                       (timeout/wrap-idle-session-timeout timeout-options))
+          request  (-> (mock/request :get "/")
+                       (assoc :session {:foo "bar"}))
+          response (with-time 1400000000 (handler request))]
+      (is (= (:body response) "ok"))
+      (is (nil? (:session response :empty))))))
 
 (def absolute-handler
   (-> (constantly ok-response)
@@ -93,4 +102,13 @@
 
   (testing "nil response"
     (let [handler (timeout/wrap-absolute-session-timeout (constantly nil) timeout-options)]
-      (is (nil? (handler (mock/request :get "/")))))))
+      (is (nil? (handler (mock/request :get "/"))))))
+
+  (testing "nil session"
+    (let [handler  (-> (constantly (assoc ok-response :session nil))
+                       (timeout/wrap-absolute-session-timeout timeout-options))
+          request  (-> (mock/request :get "/")
+                       (assoc :session {:foo "bar"}))
+          response (with-time 1400000000 (handler request))]
+      (is (= (:body response) "ok"))
+      (is (nil? (:session response :empty))))))
