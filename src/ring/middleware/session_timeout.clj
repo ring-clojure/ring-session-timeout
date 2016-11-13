@@ -8,16 +8,15 @@
   "Middleware that times out idle sessions after a specified number of seconds.
 
   If a session is timed out, the timeout-response option is returned. This is
-  usually a redirect to the login page. A timeout-handler may be provided which
-  should be a Ring handler function that takes the current request and returns
-  an appropriate response.
+  usually a redirect to the login page. Alternatively, the timeout-handler
+  option may be specified. This should contain a Ring handler function that
+  takes the current request and returns a timeout response.
 
   The following options are accepted:
 
   :timeout          - the idle timeout in seconds (default 600 seconds)
   :timeout-response - the response to send if an idle timeout occurs
-  :timeout-handler  - a Ring handler function which takes the current request and
-                      returns a Ring response map if idle timeout occurs"
+  :timeout-handler  - the handler to run if an idle timeout occurs"
   {:arglists '([handler options])}
   [handler {:keys [timeout timeout-response timeout-handler] :or {timeout 600}}]
   {:pre [(integer? timeout)
@@ -42,16 +41,15 @@
   limit on how long a compromised session can be exploited.
 
   If a session is timed out, the timeout-response option is returned. This is
-  usually a redirect to the login page. A timeout-handler may be provided which
-  should be a Ring handler function that takes the current request and returns
-  an appropriate response.
+  usually a redirect to the login page. Alternatively, the timeout-handler
+  option may be specified. This should contain a Ring handler function that
+  takes the current request and returns a timeout response.
 
   The following options are accepted:
 
   :timeout          - the absolute timeout in seconds
-  :timeout-response - the response to send if an idle timeout occurs
-  :timeout-handler  - a Ring handler function which takes the current request and
-                      returns a Ring response map if idle timeout occurs "
+  :timeout-response - the response to send if an absolute timeout occurs
+  :timeout-handler  - the handler to run if an absolute timeout occurs"
   {:arglists '([handler options])}
   [handler {:keys [timeout timeout-response timeout-handler]}]
   {:pre [(integer? timeout)
