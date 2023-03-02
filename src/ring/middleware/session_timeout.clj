@@ -4,6 +4,18 @@
 (defn- current-time []
   (quot (System/currentTimeMillis) 1000))
 
+(defn- session-idle-expired? [session]
+  (let [end-time (::idle-timeout session)]
+    (and end-time (< end-time (current-time)))))
+
+(defn- idle-session-timeout-response [response req-session timeout]
+  (when response
+    (let [session (:session response req-session)]
+      (if (nil? session)
+        response
+        (let [end-time (+ (current-time) timeout)]
+          (assoc response :session (assoc session ::idle-timeout end-time)))))))
+
 (defn wrap-idle-session-timeout
   "Middleware that times out idle sessions after a specified number of seconds.
 
@@ -23,17 +35,36 @@
          (if (map? timeout-response)
            (nil? timeout-handler)
            (ifn? timeout-handler))]}
-  (fn [request]
-    (let [session  (:session request {})
-          end-time (::idle-timeout session)]
-      (if (and end-time (< end-time (current-time)))
-        (assoc (or timeout-response (timeout-handler request)) :session nil)
-        (when-let [response (handler request)]
-          (let [session (:session response session)]
-            (if (nil? session)
-              response
-              (let [end-time (+ (current-time) timeout)]
-                (assoc response :session (assoc session ::idle-timeout end-time))))))))))
+  (fn
+    ([request]
+     (let [session (:session request {})]
+       (if (session-idle-expired? session)
+         (assoc (or timeout-response (timeout-handler request)) :session nil)
+         (idle-session-timeout-response (handler request) session timeout))))
+    ([request respond raise]
+     (let [session (:session request {})]
+       (if (session-idle-expired? session)
+         (if timeout-response
+           (respond (assoc timeout-response :session nil))
+           (timeout-handler request #(respond (assoc % :session nil)) raise))
+         (handler request
+                  #(respond (idle-session-timeout-response % session timeout))
+                  raise))))))
+
+(defn- session-absolute-expired? [session]
+  (let [end-time (::absolute-timeout session)]
+    (and end-time (< end-time (current-time)))))
+
+(defn- absolute-session-timeout-response [response req-session timeout]
+  (when response
+    (let [session      (:session response req-session)
+          session-end  (::absolute-timeout session)]
+      (if (or (nil? session)
+              (and session-end (not (contains? response :session))))
+        response
+        (let [end-time (or session-end (+ (current-time) timeout))
+              session  (assoc session ::absolute-timeout end-time)]
+          (assoc response :session session))))))
 
 (defn wrap-absolute-session-timeout
   "Middleware that times out sessions after a specified number of seconds,
@@ -56,15 +87,21 @@
          (if (map? timeout-response)
            (nil? timeout-handler)
            (ifn? timeout-handler))]}
-  (fn [request]
-    (let [session  (:session request {})
-          end-time (::absolute-timeout session)]
-      (if (and end-time (< end-time (current-time)))
-        (assoc (or timeout-response (timeout-handler request)) :session nil)
-        (when-let [response (handler request)]
-          (let [session (:session response session)]
-            (if (or (nil? session) (and end-time (not (contains? response :session))))
-              response
-              (let [end-time (or end-time (+ (current-time) timeout))
-                    session  (assoc session ::absolute-timeout end-time)]
-                (assoc response :session session)))))))))
+  (fn
+    ([request]
+     (let [session (:session request {})]
+       (if (session-absolute-expired? session)
+         (assoc (or timeout-response (timeout-handler request)) :session nil)
+         (absolute-session-timeout-response (handler request)
+                                            session
+                                            timeout))))
+    ([request respond raise]
+     (let [session (:session request {})]
+       (if (session-absolute-expired? session)
+         (if timeout-response
+           (respond (assoc timeout-response :session nil))
+           (timeout-handler request #(respond (assoc % :session nil)) raise))
+         (handler request
+                  #(respond
+                    (absolute-session-timeout-response % session timeout))
+                  raise))))))
