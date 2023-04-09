@@ -30,6 +30,6 @@ For more information, see the API docs linked below.
 
 ## License
 
-Copyright © 2016 James Reeves
+Copyright © 2023 James Reeves
 
 Distributed under the MIT License, the same as Ring.
