@@ -1,6 +1,6 @@
 # Ring-Session-Timeout
 
-[![Build Status](https://travis-ci.org/ring-clojure/ring-session-timeout.svg?branch=master)](https://travis-ci.org/ring-clojure/ring-session-timeout)
+[![Build Status](https://github.com/ring-clojure/ring-session-timeout/actions/workflows/test.yml/badge.svg)](https://github.com/ring-clojure/ring-session-timeout/actions/workflows/test.yml)
 
 Ring middleware that provides idle and absolute timeouts for sessions.
 
