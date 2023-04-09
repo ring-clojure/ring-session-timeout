@@ -4,7 +4,7 @@
   :license {:name "The MIT License"
             :url "http://opensource.org/licenses/MIT"}
   :dependencies [[org.clojure/clojure "1.7.0"]]
-  :plugins [[lein-codox "0.10.1"]]
+  :plugins [[lein-codox "0.10.8"]]
   :codox
   {:project {:name "Ring-Session-Timeout"}
    :html    {:namespace-list :nested}
